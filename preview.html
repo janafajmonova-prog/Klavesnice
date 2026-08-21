@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klávesová výzva</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --blue: #4f7cff;
+    --purple: #805ad5;
+    --green: #32a852;
+    --yellow: #f4c542;
+    --dark: #27324a;
+    --muted: #697386;
+    --background: #f3f6ff;
+    --border: #dfe4f2;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+        linear-gradient(135deg, #eef3ff 0%, #faf5ff 100%);
+    color: var(--dark);
+}
+
+.app {
+    width: min(1050px, 94%);
+    margin: auto;
+    padding: 30px 0 50px;
+}
+
+/* HLAVIČKA */
+
+.header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: clamp(38px, 6vw, 56px);
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.header p {
+    margin: 8px 0 0;
+    font-size: 20px;
+    color: var(--muted);
+}
+
+/* BODY */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.stat {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    padding: 15px 10px;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 900;
+}
+
+.card {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 26px;
+    padding: clamp(22px, 5vw, 38px);
+    margin-bottom: 18px;
+}
+
+/* VOLBA */
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.controls label {
+    font-size: 19px;
+    font-weight: 800;
+}
+
+select,
+button,
+input {
+    font-family: inherit;
+}
+
+select {
+    padding: 13px 18px;
+    border: 2px solid #d4dbea;
+    border-radius: 13px;
+    background: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+button {
+    cursor: pointer;
+}
+
+.new-task {
+    padding: 13px 21px;
+    border: none;
+    border-radius: 13px;
+    background: var(--purple);
+    color: white;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.new-task:hover {
+    filter: brightness(1.08);
+}
+
+/* ÚKOL */
+
+.task-label {
+    text-align: center;
+    color: #818a9f;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+}
+
+.task {
+    text-align: center;
+    font-size: clamp(30px, 5vw, 48px);
+    line-height: 1.15;
+    font-weight: 900;
+    margin-bottom: 14px;
+}
+
+.instruction {
+    text-align: center;
+    color: var(--muted);
+    font-size: 19px;
+    min-height: 28px;
+    margin-bottom: 22px;
+}
+
+/* PSANÍ */
+
+.answer-wrap {
+    max-width: 720px;
+    margin: auto;
+}
+
+#answer {
+    width: 100%;
+    padding: 18px 20px;
+    border: 3px solid #d5dbea;
+    border-radius: 17px;
+    background: #fafbff;
+    font-size: 28px;
+    text-align: center;
+    outline: none;
+}
+
+#answer:focus {
+    border-color: var(--blue);
+    background: white;
+    box-shadow: 0 0 0 5px rgba(79,124,255,.12);
+}
+
+/* NÁPOVĚDA */
+
+.help-button {
+    display: block;
+    margin: 15px auto 0;
+    padding: 14px 28px;
+    border: 2px solid #d1a900;
+    border-radius: 15px;
+    background: #fff2b8;
+    color: #4c3b00;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.help-button:hover {
+    background: #ffe98b;
+}
+
+.feedback {
+    max-width: 720px;
+    min-height: 60px;
+    margin: 15px auto 0;
+    padding: 15px 18px;
+    border-radius: 15px;
+    background: #f1f3f7;
+    text-align: center;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.feedback.help {
+    background: #e7efff;
+    color: #254c98;
+}
+
+.feedback.good {
+    background: #e1f4e6;
+    color: #206b32;
+}
+
+.progress {
+    max-width: 720px;
+    height: 11px;
+    margin: 18px auto 0;
+    border-radius: 20px;
+    background: #e5e8ef;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(
+        90deg,
+        var(--blue),
+        var(--purple)
+    );
+    transition: width .3s;
+}
+
+/* KLÁVESNICE */
+
+.keyboard-wrapper {
+    display: none;
+}
+
+.keyboard-wrapper.visible {
+    display: block;
+}
+
+.keyboard-title {
+    text-align: center;
+    font-size: 25px;
+    font-weight: 900;
+    margin-bottom: 18px;
+}
+
+.keyboard {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.key {
+    flex: 1;
+    min-width: 45px;
+    height: 55px;
+    border: 2px solid #d9deea;
+    border-radius: 9px;
+    background: #fafbff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    user-select: none;
+}
+
+.key.wide {
+    flex: 1.7;
+}
+
+.key.space {
+    flex: 5;
+}
+
+.key.target {
+    background: #ffe88a;
+    border-color: #d7a800;
+    color: #564200;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 0 #d2a400;
+}
+
+.key.active {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+}
+
+.keyboard-note {
+    text-align: center;
+    color: var(--muted);
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+/* MOBIL */
+
+@media (max-width: 700px) {
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .app {
+        width: 96%;
+        padding-top: 20px;
+    }
+
+    .card {
+        padding: 22px 16px;
+    }
+
+    .task {
+        font-size: 30px;
+    }
+
+    .instruction {
+        font-size: 17px;
+    }
+
+    #answer {
+        font-size: 23px;
+    }
+
+    .key {
+        min-width: 38px;
+        height: 45px;
+        font-size: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header class="header">
+        <h1>Klávesová výzva</h1>
+        <p>Procvič si klávesnici</p>
+    </header>
+
+
+    <div class="stats">
+
+        <div class="stat">
+            <span class="stat-label">Body</span>
+            <span class="stat-value" id="score">0</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Série</span>
+            <span class="stat-value" id="streak">0</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Úkol</span>
+            <span class="stat-value" id="taskNumber">0</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Nápovědy</span>
+            <span class="stat-value" id="hints">0</span>
+        </div>
+
+    </div>
+
+
+    <section class="card">
+
+        <div class="controls">
+
+            <label for="mode">
+                Co procvičujeme?
+            </label>
+
+            <select id="mode">
+
+                <option value="keys">
+                    Základní klávesy
+                </option>
+
+                <option value="shift">
+                    Shift a velká písmena
+                </option>
+
+                <option value="symbols">
+                    Znaky
+                </option>
+
+                <option value="typing">
+                    Psaní
+                </option>
+
+                <option value="mixed">
+                    Mix všeho
+                </option>
+
+            </select>
+
+            <button
+                id="newTask"
+                class="new-task"
+            >
+                Nový úkol
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <section class="card">
+
+        <div class="task-label">
+            ÚKOL
+        </div>
+
+        <div
+            id="task"
+            class="task"
+        ></div>
+
+        <div
+            id="instruction"
+            class="instruction"
+        ></div>
+
+
+        <div class="answer-wrap">
+
+            <input
+                id="answer"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Piš sem..."
+            >
+
+
+            <button
+                id="helpButton"
+                class="help-button"
+                type="button"
+            >
+                Zobrazit nápovědu
+            </button>
+
+
+            <div
+                id="feedback"
+                class="feedback"
+            >
+                Začni psát.
+            </div>
+
+
+            <div class="progress">
+                <div
+                    id="progressBar"
+                    class="progress-bar"
+                ></div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section
+        id="keyboardWrapper"
+        class="card keyboard-wrapper"
+    >
+
+        <div class="keyboard-title">
+            Nápověda – klávesnice
+        </div>
+
+
+        <div class="keyboard">
+
+            <div class="row">
+
+                <div class="key" data-code="Escape">Esc</div>
+                <div class="key" data-code="F1">F1</div>
+                <div class="key" data-code="F2">F2</div>
+                <div class="key" data-code="F3">F3</div>
+                <div class="key" data-code="F4">F4</div>
+                <div class="key" data-code="F5">F5</div>
+                <div class="key" data-code="F6">F6</div>
+                <div class="key" data-code="F7">F7</div>
+                <div class="key" data-code="F8">F8</div>
+                <div class="key" data-code="F9">F9</div>
+                <div class="key" data-code="F10">F10</div>
+                <div class="key" data-code="F11">F11</div>
+                <div class="key" data-code="F12">F12</div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="key" data-code="Backquote">;</div>
+                <div class="key" data-code="Digit1">1</div>
+                <div class="key" data-code="Digit2">2</div>
+                <div class="key" data-code="Digit3">3</div>
+                <div class="key" data-code="Digit4">4</div>
+                <div class="key" data-code="Digit5">5</div>
+                <div class="key" data-code="Digit6">6</div>
+                <div class="key" data-code="Digit7">7</div>
+                <div class="key" data-code="Digit8">8</div>
+                <div class="key" data-code="Digit9">9</div>
+                <div class="key" data-code="Digit0">0</div>
+                <div class="key" data-code="Backspace">⌫</div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="key wide" data-code="Tab">
+                    Tab
+                </div>
+
+                <div class="key" data-code="KeyQ">Q</div>
+                <div class="key" data-code="KeyW">W</div>
+                <div class="key" data-code="KeyE">E</div>
+                <div class="key" data-code="KeyR">R</div>
+                <div class="key" data-code="KeyT">T</div>
+                <div class="key" data-code="KeyY">Y</div>
+                <div class="key" data-code="KeyU">U</div>
+                <div class="key" data-code="KeyI">I</div>
+                <div class="key" data-code="KeyO">O</div>
+                <div class="key" data-code="KeyP">P</div>
+                <div class="key" data-code="BracketLeft">Ú</div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="key wide" data-code="CapsLock">
+                    Caps Lock
+                </div>
+
+                <div class="key" data-code="KeyA">A</div>
+                <div class="key" data-code="KeyS">S</div>
+                <div class="key" data-code="KeyD">D</div>
+                <div class="key" data-code="KeyF">F</div>
+                <div class="key" data-code="KeyG">G</div>
+                <div class="key" data-code="KeyH">H</div>
+                <div class="key" data-code="KeyJ">J</div>
+                <div class="key" data-code="KeyK">K</div>
+                <div class="key" data-code="KeyL">L</div>
+                <div class="key" data-code="Semicolon">Ů</div>
+
+                <div class="key wide" data-code="Enter">
+                    Enter
+                </div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="key wide" data-code="ShiftLeft">
+                    Shift
+                </div>
+
+                <div class="key" data-code="Backslash">\</div>
+
+                <div class="key" data-code="KeyZ">Z</div>
+                <div class="key" data-code="KeyX">X</div>
+                <div class="key" data-code="KeyC">C</div>
+                <div class="key" data-code="KeyV">V</div>
+                <div class="key" data-code="KeyB">B</div>
+                <div class="key" data-code="KeyN">N</div>
+                <div class="key" data-code="KeyM">M</div>
+                <div class="key" data-code="Comma">,</div>
+                <div class="key" data-code="Period">.</div>
+                <div class="key" data-code="Slash">/</div>
+
+                <div class="key wide" data-code="ShiftRight">
+                    Shift
+                </div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="key" data-code="ControlLeft">
+                    Ctrl
+                </div>
+
+                <div class="key" data-code="AltLeft">
+                    Alt
+                </div>
+
+                <div class="key" data-code="AltRight">
+                    AltGr
+                </div>
+
+                <div class="key space" data-code="Space">
+                    MEZERNÍK
+                </div>
+
+                <div class="key" data-code="ControlRight">
+                    Ctrl
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="keyboard-note">
+            Zvýrazněná klávesa ukazuje, kam se podívat.
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+
+const tasks = {
+
+keys: [
+
+{
+    text: "Stiskni klávesu Shift.",
+    type: "key",
+    code: "ShiftLeft",
+    hint: "Shift používáme například pro velká písmena.",
+    combo: "Stiskni Shift."
+},
+
+{
+    text: "Stiskni Caps Lock.",
+    type: "key",
+    code: "CapsLock",
+    hint: "Caps Lock zapíná a vypíná velká písmena.",
+    combo: "Stiskni Caps Lock."
+},
+
+{
+    text: "Stiskni Enter.",
+    type: "key",
+    code: "Enter",
+    hint: "Enter používáme například pro nový řádek.",
+    combo: "Stiskni Enter."
+},
+
+{
+    text: "Stiskni mezerník.",
+    type: "key",
+    code: "Space",
+    hint: "Je to nejdelší klávesa.",
+    combo: "Stiskni mezerník."
+}
+
+],
+
+shift: [
+
+{
+    text: "Napiš velké A.",
+    answer: "A",
+    code: "KeyA",
+    hint: "Přidrž Shift a stiskni A.",
+    combo: "Shift + A"
+},
+
+{
+    text: "Napiš velké Z.",
+    answer: "Z",
+    code: "KeyZ",
+    hint: "Přidrž Shift a stiskni Z.",
+    combo: "Shift + Z"
+},
+
+{
+    text: "Napiš velké M.",
+    answer: "M",
+    code: "KeyM",
+    hint: "Přidrž Shift a stiskni M.",
+    combo: "Shift + M"
+},
+
+{
+    text: "Napiš: Ahoj",
+    answer: "Ahoj",
+    code: "KeyA",
+    hint: "První písmeno musí být velké.",
+    combo: "Shift + A"
+},
+
+{
+    text: "Napiš: Petr",
+    answer: "Petr",
+    code: "KeyP",
+    hint: "První písmeno musí být velké.",
+    combo: "Shift + P"
+}
+
+],
+
+symbols: [
+
+{
+    text: "Napiš zavináč @",
+    answer: "@",
+    code: "KeyV",
+    hint: "Na české klávesnici se obvykle používá AltGr + V.",
+    combo: "AltGr + V"
+},
+
+{
+    text: "Napiš dvojtečku :",
+    answer: ":",
+    code: "Semicolon",
+    hint: "Použij Shift a klávesu pro dvojtečku.",
+    combo: "Shift + klávesa ;"
+},
+
+{
+    text: "Napiš obrácené lomítko \\",
+    answer: "\\",
+    code: "Backslash",
+    hint: "Najdi klávesu s obráceným lomítkem.",
+    combo: "klávesa \\"
+},
+
+{
+    text: "Napiš apostrof '",
+    answer: "'",
+    code: "Quote",
+    hint: "Najdi klávesu apostrofu.",
+    combo: "klávesa '"
+},
+
+{
+    text: "Napiš tečku .",
+    answer: ".",
+    code: "Period",
+    hint: "Použij klávesu tečky.",
+    combo: "klávesa ."
+},
+
+{
+    text: "Napiš čárku ,",
+    answer: ",",
+    code: "Comma",
+    hint: "Použij klávesu čárky.",
+    combo: "klávesa ,"
+},
+
+{
+    text: "Napiš pomlčku -",
+    answer: "-",
+    code: "Minus",
+    hint: "Najdi klávesu pomlčky.",
+    combo: "klávesa -"
+},
+
+{
+    text: "Napiš podtržítko _",
+    answer: "_",
+    code: "Minus",
+    hint: "Použij Shift + pomlčka.",
+    combo: "Shift + -"
+},
+
+{
+    text: "Napiš vykřičník !",
+    answer: "!",
+    code: "Digit1",
+    hint: "Použij Shift a číslo 1.",
+    combo: "Shift + 1"
+},
+
+{
+    text: "Napiš otazník ?",
+    answer: "?",
+    code: "Slash",
+    hint: "Použij Shift a klávesu otazníku.",
+    combo: "Shift + klávesa ?"
+}
+
+],
+
+typing: [
+
+{
+    text: "Napiš přesně: Ahoj!",
+    answer: "Ahoj!",
+    code: "KeyA",
+    hint: "Pozor na velké A a vykřičník.",
+    combo: "Shift + A"
+},
+
+{
+    text: "Napiš přesně: ahoj.cz",
+    answer: "ahoj.cz",
+    code: "Period",
+    hint: "Použij tečku.",
+    combo: "klávesa ."
+},
+
+{
+    text: "Napiš přesně: moje@email.cz",
+    answer: "moje@email.cz",
+    code: "KeyV",
+    hint: "Nezapomeň na zavináč.",
+    combo: "AltGr + V"
+},
+
+{
+    text: "Napiš přesně: www.skola.cz",
+    answer: "www.skola.cz",
+    code: "Period",
+    hint: "Použij dvě tečky.",
+    combo: "klávesa ."
+},
+
+{
+    text: "Napiš přesně: Jana Nováková",
+    answer: "Jana Nováková",
+    code: "KeyJ",
+    hint: "Obě jména začínají velkým písmenem.",
+    combo: "Shift + J"
+},
+
+{
+    text: "Napiš přesně: heslo_123",
+    answer: "heslo_123",
+    code: "Minus",
+    hint: "Pozor na podtržítko.",
+    combo: "Shift + -"
+},
+
+{
+    text: "Napiš přesně: cesta\\soubor",
+    answer: "cesta\\soubor",
+    code: "Backslash",
+    hint: "Potřebuješ obrácené lomítko.",
+    combo: "klávesa \\"
+},
+
+{
+    text: "Napiš přesně: It's OK",
+    answer: "It's OK",
+    code: "Quote",
+    hint: "Pozor na apostrof.",
+    combo: "klávesa '"
+},
+
+{
+    text: "Napiš přesně: čas: 10:30",
+    answer: "čas: 10:30",
+    code: "Semicolon",
+    hint: "Použij dvojtečku.",
+    combo: "Shift + klávesa ;"
+}
+
+]
+
+};
+
+
+let currentTask = null;
+let score = 0;
+let streak = 0;
+let taskNumber = 0;
+let hints = 0;
+
+
+const taskEl =
+    document.getElementById("task");
+
+const instructionEl =
+    document.getElementById("instruction");
+
+const answerEl =
+    document.getElementById("answer");
+
+const feedbackEl =
+    document.getElementById("feedback");
+
+const scoreEl =
+    document.getElementById("score");
+
+const streakEl =
+    document.getElementById("streak");
+
+const taskNumberEl =
+    document.getElementById("taskNumber");
+
+const hintsEl =
+    document.getElementById("hints");
+
+const modeEl =
+    document.getElementById("mode");
+
+const newTaskButton =
+    document.getElementById("newTask");
+
+const helpButton =
+    document.getElementById("helpButton");
+
+const keyboardWrapper =
+    document.getElementById("keyboardWrapper");
+
+const progressBar =
+    document.getElementById("progressBar");
+
+
+function randomTask() {
+
+    let list;
+
+    if (modeEl.value === "mixed") {
+
+        list = [
+            ...tasks.keys,
+            ...tasks.shift,
+            ...tasks.symbols,
+            ...tasks.typing
+        ];
+
+    } else {
+
+        list = tasks[modeEl.value];
+
+    }
+
+    return list[
+        Math.floor(
+            Math.random() * list.length
+        )
+    ];
+}
+
+
+function newTask() {
+
+    currentTask = randomTask();
+
+    taskNumber++;
+
+    taskEl.textContent =
+        currentTask.text;
+
+    instructionEl.textContent =
+        "";
+
+    answerEl.value = "";
+
+    feedbackEl.textContent =
+        "Začni psát.";
+
+    feedbackEl.className =
+        "feedback";
+
+    keyboardWrapper.classList.remove(
+        "visible"
+    );
+
+    clearKeyboard();
+
+    updateStats();
+
+    answerEl.focus();
+}
+
+
+function updateStats() {
+
+    scoreEl.textContent = score;
+    streakEl.textContent = streak;
+    taskNumberEl.textContent = taskNumber;
+    hintsEl.textContent = hints;
+
+    progressBar.style.width =
+        ((score % 10) * 10) + "%";
+}
+
+
+function clearKeyboard() {
+
+    document
+        .querySelectorAll(".key")
+        .forEach(key => {
+
+            key.classList.remove("target");
+            key.classList.remove("active");
+
+        });
+}
+
+
+function showHelp() {
+
+    keyboardWrapper.classList.add(
+        "visible"
+    );
+
+    clearKeyboard();
+
+    const key =
+        document.querySelector(
+            `.key[data-code="${currentTask.code}"]`
+        );
+
+    if (key) {
+
+        key.classList.add("target");
+
+    }
+
+    feedbackEl.className =
+        "feedback help";
+
+    feedbackEl.innerHTML =
+        "<strong>Nápověda:</strong> " +
+        currentTask.combo;
+
+    hints++;
+
+    updateStats();
+
+    keyboardWrapper.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+}
+
+
+function correct() {
+
+    score++;
+    streak++;
+
+    feedbackEl.className =
+        "feedback good";
+
+    feedbackEl.innerHTML =
+        "<strong>Správně!</strong>";
+
+    updateStats();
+
+    setTimeout(
+        newTask,
+        700
+    );
+}
+
+
+function checkKey(event) {
+
+    if (
+        currentTask.type !== "key"
+    ) {
+        return;
+    }
+
+    if (
+        event.code ===
+        currentTask.code
+    ) {
+
+        event.preventDefault();
+
+        correct();
+
+    } else {
+
+        streak = 0;
+
+        updateStats();
+
+    }
+}
+
+
+function checkText() {
+
+    if (!currentTask.answer) {
+        return;
+    }
+
+    if (
+        answerEl.value ===
+        currentTask.answer
+    ) {
+
+        correct();
+
+    }
+
+}
+
+
+answerEl.addEventListener(
+    "keydown",
+    event => {
+
+        checkKey(event);
+
+    }
+);
+
+
+answerEl.addEventListener(
+    "input",
+    () => {
+
+        if (
+            currentTask.type ===
+            "key"
+        ) {
+            return;
+        }
+
+        checkText();
+
+    }
+);
+
+
+helpButton.addEventListener(
+    "click",
+    showHelp
+);
+
+
+newTaskButton.addEventListener(
+    "click",
+    newTask
+);
+
+
+modeEl.addEventListener(
+    "change",
+    newTask
+);
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        document
+            .querySelectorAll(".key")
+            .forEach(key =>
+                key.classList.remove("active")
+            );
+
+        const key =
+            document.querySelector(
+                `.key[data-code="${event.code}"]`
+            );
+
+        if (key) {
+
+            key.classList.add("active");
+
+        }
+
+    }
+);
+
+
+newTask();
+
+</script>
+
+</body>
+</html>
